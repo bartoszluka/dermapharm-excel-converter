@@ -4,12 +4,12 @@ open Elmish.WPF
 open Elmish
 open System.IO
 
-type ErrorList = string list
+type ErrorString = string
 type OutFiles = string list
 
 type MaybeFiles =
-    { InputFile: string option
-      DictFile: string option }
+    { MaybeInputFile: string option
+      MaybeDictFile: string option }
 
 type Files = { InputFile: string; DictFile: string }
 
@@ -17,26 +17,19 @@ type State =
     | GatheringData of MaybeFiles
     | GotAllData of Files
     | Converting
-    | Done of Result<OutFiles, ErrorList>
+    | Done of Result<OutFiles, ErrorString>
 
 type Model =
-    { InputFile: string option
-      DictFile: string option
-      // OutputDirectory: string
-      AppState: State
-      StatusMessage: string
-      ErrorMessage: string
-      CreatedFiles: string list }
+    { AppState: State
+      StatusMessage: string }
 
 
 let init () =
-    { InputFile = Some ""
-      DictFile = Some ""
-      //   OutputDirectory = ""
-      AppState = GatheringData { InputFile = None; DictFile = None }
-      StatusMessage = "Wybierz pliki do konwersji"
-      ErrorMessage = ""
-      CreatedFiles = [] },
+    { AppState =
+          GatheringData
+              { MaybeInputFile = None
+                MaybeDictFile = None }
+      StatusMessage = "Wybierz pliki do konwersji" },
     []
 
 type Msg =
@@ -54,21 +47,18 @@ type Msg =
     | SetDictFileFailed of exn
 
 
-let resultDoubleMap ifOk ifError result =
-    match result with
+let resultDoubleMap ifOk ifError =
+    function
     | Ok files -> files |> ifOk
     | Error errors -> errors |> ifError
 
-let convert (inputFile, dictFile) =
+let unPair f (x, y) = f x y
+
+let convert inputFile dictFile =
     async {
         return
-            match inputFile, dictFile with
-            | Some excel, Some dict ->
-                ExcelConverter.convert excel dict
-                |> resultDoubleMap ConvertSuccess (ConvertFailed << failwith)
-            | None, Some _ -> SetStatusMessage "Nie wybrano pliku excel"
-            | Some _, None -> SetStatusMessage "Nie wybrano pliku słownika"
-            | None, None -> SetStatusMessage "Nie wybrano żadnego z plików wejściowych"
+            ExcelConverter.convert inputFile dictFile
+            |> resultDoubleMap ConvertSuccess (ConvertFailed << failwith)
     }
 
 
@@ -112,81 +102,149 @@ let loadDictFile () =
             return SetDictFileCanceled
     }
 
+let convertToGotData model =
+    match model.AppState with
+    | GatheringData { MaybeInputFile = Some input
+                      MaybeDictFile = Some dict } ->
+        { model with
+              AppState = GotAllData { InputFile = input; DictFile = dict } }
+    | _ -> model
+
+
+let updateGatheringDataDict model dictFile =
+    match model.AppState with
+    | GatheringData maybeFiles ->
+        { model with
+              StatusMessage = "Wybierz plik Excel"
+              AppState =
+                  GatheringData
+                      { maybeFiles with
+                            MaybeDictFile = Some dictFile } }
+    | _ -> model
+
+let updateGatheringDataInput model inputFile =
+    match model.AppState with
+    | GatheringData maybeFiles ->
+        { model with
+              StatusMessage = "Wybierz słownik"
+              AppState =
+                  GatheringData
+                      { maybeFiles with
+                            MaybeInputFile = Some inputFile } }
+    | _ -> model
+
+
 let update msg model =
     match msg with
     | RequestConvert ->
-        { model with AppState = Converting },
-        Cmd.OfAsync.either
-            convert
-            (model.InputFile, model.DictFile)
-            id
-            //  (fun mg mod -> { m with AppState = Done(Ok []) })
-            ConvertFailed
-    | RequestSelectInputFile -> model, Cmd.OfAsync.either loadInputFile () id SetInputFileFailed
-    | RequestSelectDictFile -> model, Cmd.OfAsync.either loadDictFile () id SetDictFileFailed
+        match model.AppState with
+        | GotAllData files ->
+            { model with
+                  StatusMessage = "Konwertowanie..."
+                  AppState = Converting },
+            Cmd.OfAsync.either (unPair convert) (files.InputFile, files.DictFile) id ConvertFailed
+        // TODO: give some useful error message
+        | _ -> model, Cmd.none
+    | RequestSelectInputFile ->
+        { model with
+              StatusMessage = "Ładowanie pliku excel" },
+        Cmd.OfAsync.either loadInputFile () id SetInputFileFailed
+    | RequestSelectDictFile ->
+        { model with
+              StatusMessage = "Ładowanie słownika" },
+        Cmd.OfAsync.either loadDictFile () id SetDictFileFailed
     | SetInputFileCanceled ->
         { model with
-              ErrorMessage = "Wybierz ponownie dokument Excel" },
+              //tutaj był error
+              StatusMessage = "Wybierz ponownie dokument Excel" },
         Cmd.none
+
     | SetInputFile inputFile ->
-        { model with
-              InputFile = Some inputFile },
+        updateGatheringDataInput model inputFile
+        |> convertToGotData,
         Cmd.none
-    | SetDictFile dictFile -> { model with DictFile = Some dictFile }, Cmd.none
+
+    | SetDictFile dictFile ->
+        updateGatheringDataDict model dictFile
+        |> convertToGotData,
+        Cmd.none
+
     | SetDictFileCanceled ->
         { model with
-              ErrorMessage = "Wybierz plik słownika ponownie" },
+              //tutaj był error
+              StatusMessage = "Wybierz plik słownika ponownie" },
         Cmd.none
     | ConvertSuccess createdFiles ->
         { model with
-              CreatedFiles = createdFiles
               StatusMessage = "Udało się przekonwertować"
-              AppState = Done(Ok []) },
+              AppState = Done <| Ok createdFiles },
         Cmd.none
-    | ConvertFailed (_) ->
+    | ConvertFailed errorList ->
         { model with
-              ErrorMessage =
-                  "Nie udało się przekonwertowć. Upewnij się, że pliki nie są otwarte w innym programie (np Excelu)" },
+              //tutaj był error
+              StatusMessage =
+                  "Nie udało się przekonwertowć. Upewnij się, że pliki nie są otwarte w innym programie (np. w Excelu)"
+              AppState = Done <| Error errorList.Message },
         Cmd.none
+
     | SetInputFileFailed (_) ->
         { model with
-              ErrorMessage = "Coś poszło nie tak, spróbuj wybrać dokument Excel ponownie" },
+              //tutaj był error
+              StatusMessage = "Coś poszło nie tak, spróbuj wybrać dokument Excel ponownie" },
         Cmd.none
+
     | SetDictFileFailed (_) ->
         { model with
-              ErrorMessage = "Coś poszło nie tak, spróbuj wybrać słownik ponownie" },
+              //tutaj był error
+              StatusMessage = "Coś poszło nie tak, spróbuj wybrać słownik ponownie" },
         Cmd.none
     | SetStatusMessage text -> { model with StatusMessage = text }, Cmd.none
 
+let intersperse sep ls =
+    List.foldBack
+        (fun x ->
+            function
+            | [] -> [ x ]
+            | xs -> x :: sep :: xs)
+        ls
+        []
+
+let displayOutFiles model =
+    match model.AppState with
+    | Done (Ok files) -> files |> intersperse "\n" |> List.reduceBack (+)
+    | _ -> "Jeszcze Nie przekonwertowano"
+
+let displayInputFile model =
+    match model.AppState with
+    | GatheringData ({ MaybeInputFile = (Some file) }) -> file
+    | GotAllData ({ InputFile = file }) -> file
+    | Done (Ok _) -> ""
+    | _ -> "Wybierz plik excel"
+
+let displayDictFile model =
+    match model.AppState with
+    | GatheringData ({ MaybeDictFile = (Some file) }) -> file
+    | GotAllData ({ DictFile = file }) -> file
+    | Done (Ok _) -> ""
+    | _ -> "Wybierz słownik"
 
 let bindings () : Binding<Model, Msg> list =
     [ "StatusMessage"
       |> Binding.oneWay (fun m -> m.StatusMessage)
-      "ErrorMessage"
-      |> Binding.oneWay (fun m -> m.ErrorMessage)
-      "OutputFiles"
-      |> Binding.oneWay (fun m -> m.CreatedFiles)
+      "OutputFiles" |> Binding.oneWay displayOutFiles
       "Convert" |> Binding.cmd RequestConvert
-      "InputFile"
-      |> Binding.oneWay (fun m -> Option.defaultValue "Nie wybrano pliku" m.InputFile)
-      "DictFile"
-      |> Binding.oneWay (fun m -> Option.defaultValue "Nie wybrano pliku" m.DictFile)
+      "InputFile" |> Binding.oneWay displayInputFile
+      "DictFile" |> Binding.oneWay displayDictFile
       "SelectInputFile"
       |> Binding.cmd RequestSelectInputFile
       "IsButtonEnabled"
       |> Binding.oneWay
           (fun m ->
               match m.AppState with
-              | GatheringData -> true
-              | Converting -> false
-              | Done _ -> false)
+              | GotAllData _ -> true
+              | _ -> false)
       "ConvertButtonText"
-      |> Binding.oneWay
-          (fun m ->
-              match m.AppState with
-              | GatheringData -> "Wybierz pliki"
-              | Converting -> "Konwertowanie"
-              | Done _ -> "Koniec")
+      |> Binding.oneWay (fun _ -> "Konwertuj")
       "SelectDictFile"
       |> Binding.cmd RequestSelectDictFile ]
 
