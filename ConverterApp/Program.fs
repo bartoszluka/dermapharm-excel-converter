@@ -62,20 +62,6 @@ let convert inputFile dictFile =
     }
 
 
-let loadOutputDirectory () =
-    async {
-        let dlg = Microsoft.Win32.OpenFileDialog()
-        dlg.Filter <- "Dokument Excel (*.xls)|*.xls"
-        dlg.DefaultExt <- "xls"
-        let result = dlg.ShowDialog()
-
-        if result.HasValue && result.Value then
-            return SetInputFile dlg.FileName
-        else
-            return SetInputFileCanceled
-    }
-
-
 let loadInputFile () =
     async {
         let dlg = Microsoft.Win32.OpenFileDialog()
@@ -174,11 +160,13 @@ let update msg model =
               //tutaj był error
               StatusMessage = "Wybierz plik słownika ponownie" },
         Cmd.none
+
     | ConvertSuccess createdFiles ->
         { model with
               StatusMessage = "Udało się przekonwertować"
               AppState = Done <| Ok createdFiles },
         Cmd.none
+
     | ConvertFailed errorList ->
         { model with
               //tutaj był error
@@ -198,6 +186,7 @@ let update msg model =
               //tutaj był error
               StatusMessage = "Coś poszło nie tak, spróbuj wybrać słownik ponownie" },
         Cmd.none
+
     | SetStatusMessage text -> { model with StatusMessage = text }, Cmd.none
 
 let intersperse sep ls =
