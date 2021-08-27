@@ -78,8 +78,8 @@ let loadInputFile () =
 let loadDictFile () =
     async {
         let dlg = Microsoft.Win32.OpenFileDialog()
-        dlg.Filter <- "Słownik w formacie tekstowym (*.txt)|*.txt"
-        dlg.DefaultExt <- "txt"
+        dlg.Filter <- "Słownik w formacie Excel (*.xlsx)|*.xlsx"
+        dlg.DefaultExt <- "xlsx"
         let result = dlg.ShowDialog()
 
         if result.HasValue && result.Value then
