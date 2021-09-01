@@ -1,24 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net5.0-windows</TargetFramework>
-        <UseWpf>true</UseWpf>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <WarnOn>3390;$(WarnOn)</WarnOn>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWpf>true</UseWpf>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <Compile Include="Program.fs" />
-    </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.fs" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Elmish.WPF" Version="4.0.0-beta-41" />
-        <PackageReference Include="NanoXLSX" Version="1.8.0" />
-        <PackageReference Include="FreeSpire.XLS" Version="10.10.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Elmish.WPF" Version="4.0.0-beta-41" />
+    <PackageReference Include="NanoXLSX" Version="1.8.0" />
+    <PackageReference Include="FreeSpire.XLS" Version="10.10.0" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\ExcelConverter\ExcelConverter.fsproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExcelConverter\ExcelConverter.fsproj" />
+  </ItemGroup>
 
 </Project>

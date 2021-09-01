@@ -1,0 +1,5 @@
+[*.wxs]
+tab_width = 2
+
+[*.[cf]sproj]
+tab_width = 2
