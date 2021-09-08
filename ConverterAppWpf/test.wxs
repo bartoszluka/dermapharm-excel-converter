@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="windows-1252"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <DirectoryRef Id="TARGETDIR">
+      <Directory Id="dir923CC429B54DF9AADA6C29057216A203" Name="Published" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="Published">
+      <Component Id="cmp8C5ED0073870B88EB2C813D3871B6E67" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{E2FCD908-0C07-462F-BB9B-5179F60F6F6E}">
+        <File Id="filC75DF059E3E6EAE49924070224386085" KeyPath="yes" Source="SourceDir\clrcompression.dll" />
+      </Component>
+      <Component Id="cmp867B5D7D851E29B9E41516355E397560" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{1893EC66-2538-480F-8125-DEA297B8ACAC}">
+        <File Id="fil3AE718940BDACAB32238E4007DC31E41" KeyPath="yes" Source="SourceDir\clrjit.dll" />
+      </Component>
+      <Component Id="cmpE17B40A4DEF5AA4E57F85EDF963F880A" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{7D4763BC-3468-41F9-97C7-F2D64E1044AD}">
+        <File Id="filA21F4D2B76A33FEF08504E3A6A9FC44E" KeyPath="yes" Source="SourceDir\ConverterApp.pdb" />
+      </Component>
+      <Component Id="cmp03287F3C1414FB596B18CB8D9049EBA5" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{61EB0164-A56F-472F-9403-B2CD11C0ABA7}">
+        <File Id="fil65FB2B021D9B701BCA7E53FC238099C5" KeyPath="yes" Source="SourceDir\ConverterApp.xml" />
+      </Component>
+      <Component Id="cmp0ED68AD0CD1F98BF1F5C8B52DB1CAC8F" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{A5F76105-D9FA-4992-8CAB-6411DF1A8B26}">
+        <File Id="fil1E5B54B01B122B5AA92573175DE934B4" KeyPath="yes" Source="SourceDir\ConverterAppWpf.exe" />
+      </Component>
+      <Component Id="cmp99DFEB381EC13064879CD004A2AC783C" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{A904FDBF-6995-4652-918C-073A5487ABB3}">
+        <File Id="fil53BEDC9D0CA84A52B9CFD5CB997D0BE3" KeyPath="yes" Source="SourceDir\ConverterAppWpf.pdb" />
+      </Component>
+      <Component Id="cmp5980E0EB9A2A3387302DAE7234DAF798" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{8CEBEE3B-FDDB-440F-BF0B-B25EDCCD075A}">
+        <File Id="fil032D354CF10290793814C87EDF01E8FC" KeyPath="yes" Source="SourceDir\coreclr.dll" />
+      </Component>
+      <Component Id="cmp3CEDBDC28646532423227545087AD820" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{8FA65D01-9F3D-48A5-A21F-141E400EC32E}">
+        <File Id="filA46DFD06C29B0E5AF47091932F91740D" KeyPath="yes" Source="SourceDir\D3DCompiler_47_cor3.dll" />
+      </Component>
+      <Component Id="cmp5DB04171B2985FA0D313792C0B2F9338" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{F815F907-1820-46BF-9BD5-C03829B5D553}">
+        <File Id="fil99F71BFC8C21EEF9761C1AF43E95BD4F" KeyPath="yes" Source="SourceDir\ExcelConverter.pdb" />
+      </Component>
+      <Component Id="cmp04D99C20E62C0E6FB2AF18B8FC4D3918" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{28B30776-87CA-4AC6-9077-05C12AB05301}">
+        <File Id="filF027EEA93ABDE9E2329D13AF8320F27F" KeyPath="yes" Source="SourceDir\mscordaccore.dll" />
+      </Component>
+      <Component Id="cmpE9D6011CA40DF0421E51EA809AAB7E36" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{99718E61-050F-4766-BBCA-C95366E54CB4}">
+        <File Id="fil16A16EF5B043AF4E58ADFA481ABB8439" KeyPath="yes" Source="SourceDir\PenImc_cor3.dll" />
+      </Component>
+      <Component Id="cmpA5BE0D46199335016A64E368B863DF9A" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{095D7E20-6834-4D5F-B40C-3DCE6F710622}">
+        <File Id="filE4FAA405AC2B09DBE523FEE054299665" KeyPath="yes" Source="SourceDir\PresentationNative_cor3.dll" />
+      </Component>
+      <Component Id="cmp9441215FF935C992CC9193D7E27C4F76" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{55589485-8EA9-4F0B-BCFF-067ECD2E5F91}">
+        <File Id="fil358F8E48FA89C7AAA802A1B08FAE6E56" KeyPath="yes" Source="SourceDir\vcruntime140_cor3.dll" />
+      </Component>
+      <Component Id="cmpB0A28711C014E3B2FC418A3DFF9A53DF" Directory="dir923CC429B54DF9AADA6C29057216A203" Guid="{15C9B526-C2A6-4BFC-A581-C428CF39F5D5}">
+        <File Id="fil9C24138D885BD848248DFB41780BF0DA" KeyPath="yes" Source="SourceDir\wpfgfx_cor3.dll" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
