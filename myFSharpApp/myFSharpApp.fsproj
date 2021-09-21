@@ -5,10 +5,9 @@
     <WarnOn>3390;$(WarnOn)</WarnOn>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ConsoleApp.fs" />
-    <Compile Include="ConsoleApp.fs" />
+    <ProjectReference Include="..\ExcelConverter\ExcelConverter.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ExcelConverter\ExcelConverter.fsproj" />
+    <Compile Include="ConsoleApp.fs" />
   </ItemGroup>
 </Project>

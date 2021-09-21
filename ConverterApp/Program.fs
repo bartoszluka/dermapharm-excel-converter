@@ -7,11 +7,19 @@ open System.IO
 type ErrorString = string
 type OutFiles = string list
 
+type InputFileType =
+    | Basic
+    | Kakadu
+
 type MaybeFiles =
     { MaybeInputFile: string option
-      MaybeDictFile: string option }
+      MaybeDictFile: string option
+      InputFileType: InputFileType }
 
-type Files = { InputFile: string; DictFile: string }
+type Files =
+    { InputFile: string
+      DictFile: string
+      InputFileType: InputFileType }
 
 type State =
     | GatheringData of MaybeFiles
@@ -28,13 +36,15 @@ let init () =
     { AppState =
           GatheringData
               { MaybeInputFile = None
-                MaybeDictFile = None }
+                MaybeDictFile = None
+                InputFileType = Basic }
       StatusMessage = "Wybierz pliki do konwersji" },
     []
 
 type Msg =
     | RequestSelectInputFile
     | RequestSelectDictFile
+    | ChangeInputFileType of InputFileType
     | SetInputFileCanceled
     | SetDictFileCanceled
     | SetInputFile of string
@@ -54,10 +64,17 @@ let resultDoubleMap ifOk ifError =
 
 let unPair f (x, y) = f x y
 
-let convert inputFile dictFile =
+let unTriple f (x, y, z) = f x y z
+
+let convert inputFileType inputFile dictFile =
     async {
+        let convertingFunction =
+            match inputFileType with
+            | Basic _ -> ExcelConverter.convert
+            | Kakadu -> ExcelConverter.convertKakadu
+
         return
-            ExcelConverter.convert inputFile dictFile
+            convertingFunction inputFile dictFile
             |> resultDoubleMap ConvertSuccess (ConvertFailed << failwith)
     }
 
@@ -65,7 +82,7 @@ let convert inputFile dictFile =
 let loadInputFile () =
     async {
         let dlg = Microsoft.Win32.OpenFileDialog()
-        dlg.Filter <- "Dokument Excel (*.xls)|*.xls"
+        dlg.Filter <- "Dokument Excel (*.xls lub *.xlsx)|*.xls*"
         dlg.DefaultExt <- "xls"
         let result = dlg.ShowDialog()
 
@@ -91,9 +108,14 @@ let loadDictFile () =
 let convertToGotData model =
     match model.AppState with
     | GatheringData { MaybeInputFile = Some input
-                      MaybeDictFile = Some dict } ->
+                      MaybeDictFile = Some dict
+                      InputFileType = inputFileType } ->
         { model with
-              AppState = GotAllData { InputFile = input; DictFile = dict } }
+              AppState =
+                  GotAllData
+                      { InputFile = input
+                        DictFile = dict
+                        InputFileType = inputFileType } }
     | _ -> model
 
 
@@ -106,6 +128,14 @@ let updateGatheringDataDict model dictFile =
                   GatheringData
                       { maybeFiles with
                             MaybeDictFile = Some dictFile } }
+    | Done _ ->
+        { model with
+              StatusMessage = "Wybierz plik Excel"
+              AppState =
+                  GatheringData
+                      { MaybeInputFile = None
+                        MaybeDictFile = Some dictFile
+                        InputFileType = Basic } }
     | _ -> model
 
 let updateGatheringDataInput model inputFile =
@@ -117,8 +147,34 @@ let updateGatheringDataInput model inputFile =
                   GatheringData
                       { maybeFiles with
                             MaybeInputFile = Some inputFile } }
+    | Done _ ->
+        { model with
+              StatusMessage = "Wybierz słownik"
+              AppState =
+                  GatheringData
+                      { MaybeInputFile = Some inputFile
+                        MaybeDictFile = None
+                        InputFileType = Basic } }
     | _ -> model
 
+let none model = model, Cmd.none
+
+let updateInputFileType model inputFileType =
+    match model.AppState with
+    | GatheringData maybeFiles ->
+        { model with
+              AppState =
+                  GatheringData
+                  <| { maybeFiles with
+                           InputFileType = inputFileType } }
+    | GotAllData files ->
+        { model with
+              AppState =
+                  GotAllData
+                  <| { files with
+                           InputFileType = inputFileType } }
+
+    | _ -> model
 
 let update msg model =
     match msg with
@@ -128,7 +184,11 @@ let update msg model =
             { model with
                   StatusMessage = "Konwertowanie..."
                   AppState = Converting },
-            Cmd.OfAsync.either (unPair convert) (files.InputFile, files.DictFile) id ConvertFailed
+            Cmd.OfAsync.either
+                (unTriple convert)
+                (files.InputFileType, files.InputFile, files.DictFile)
+                id
+                ConvertFailed
         // TODO: give some useful error message
         | _ -> model, Cmd.none
     | RequestSelectInputFile ->
@@ -139,6 +199,7 @@ let update msg model =
         { model with
               StatusMessage = "Ładowanie słownika" },
         Cmd.OfAsync.either loadDictFile () id SetDictFileFailed
+    | ChangeInputFileType fileType -> updateInputFileType model fileType |> none
     | SetInputFileCanceled ->
         { model with
               //tutaj był error
@@ -147,13 +208,13 @@ let update msg model =
 
     | SetInputFile inputFile ->
         updateGatheringDataInput model inputFile
-        |> convertToGotData,
-        Cmd.none
+        |> convertToGotData
+        |> none
 
     | SetDictFile dictFile ->
         updateGatheringDataDict model dictFile
-        |> convertToGotData,
-        Cmd.none
+        |> convertToGotData
+        |> none
 
     | SetDictFileCanceled ->
         { model with
@@ -200,8 +261,10 @@ let intersperse sep ls =
 
 let displayOutFiles model =
     match model.AppState with
-    | Done (Ok files) -> files |> intersperse "\n" |> List.reduceBack (+)
-    | _ -> "Jeszcze Nie przekonwertowano"
+    // | Done (Ok files) -> files |> intersperse "\n" |> List.reduceBack (+)
+    // | _ -> "Jeszcze nie przekonwertowano"
+    | Done (Ok files) -> files
+    | _ -> []
 
 let displayInputFile model =
     match model.AppState with
@@ -217,6 +280,12 @@ let displayDictFile model =
     | Done (Ok _) -> ""
     | _ -> "Wybierz słownik"
 
+let radioButtonState state fallback model =
+    match model.AppState with
+    | GatheringData maybeFiles -> maybeFiles.InputFileType = state
+    | GotAllData files -> files.InputFileType = state
+    | _ -> fallback
+
 let bindings () : Binding<Model, Msg> list =
     [ "StatusMessage"
       |> Binding.oneWay (fun m -> m.StatusMessage)
@@ -226,6 +295,14 @@ let bindings () : Binding<Model, Msg> list =
       "DictFile" |> Binding.oneWay displayDictFile
       "SelectInputFile"
       |> Binding.cmd RequestSelectInputFile
+      "ChangeInputToBasic"
+      |> Binding.cmd (ChangeInputFileType Basic)
+      "ChangeInputToKakadu"
+      |> Binding.cmd (ChangeInputFileType Kakadu)
+      "IsBasic"
+      |> Binding.oneWay (radioButtonState Basic true)
+      "IsKakadu"
+      |> Binding.oneWay (radioButtonState Kakadu false)
       "IsButtonEnabled"
       |> Binding.oneWay
           (fun m ->
