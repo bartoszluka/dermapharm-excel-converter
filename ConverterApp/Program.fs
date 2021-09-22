@@ -33,21 +33,24 @@ type Model =
 
 
 type Msg =
+    // user interaction
     | RequestSelectInputFile
     | RequestSelectDictFile
     | ChangeInputFileType of InputFileType
+    | RequestConvert
     | SetInputFileCanceled
     | SetDictFileCanceled
+    // internal
     | SetInputFile of string
     | SetDictFile of string
     | SetStatusMessage of string
-    | RequestConvert
     | ConvertSuccess of string list
+    | LoadLastDict
+    // errors
     | ConvertFailed of exn
     | SetInputFileFailed of exn
     | SetDictFileFailed of exn
     | LoadLastDictFailed of exn
-    | LoadLastDict
 
 let init () =
     { AppState =
