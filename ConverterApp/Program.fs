@@ -32,15 +32,6 @@ type Model =
       StatusMessage: string }
 
 
-let init () =
-    { AppState =
-          GatheringData
-              { MaybeInputFile = None
-                MaybeDictFile = None
-                InputFileType = Basic }
-      StatusMessage = "Wybierz pliki do konwersji" },
-    []
-
 type Msg =
     | RequestSelectInputFile
     | RequestSelectDictFile
@@ -55,6 +46,17 @@ type Msg =
     | ConvertFailed of exn
     | SetInputFileFailed of exn
     | SetDictFileFailed of exn
+    | LoadLastDictFailed of exn
+    | LoadLastDict
+
+let init () =
+    { AppState =
+          GatheringData
+              { MaybeInputFile = None
+                MaybeDictFile = None
+                InputFileType = Basic }
+      StatusMessage = "Wybierz pliki do konwersji" },
+    Cmd.ofMsg LoadLastDict
 
 
 let resultDoubleMap ifOk ifError =
@@ -78,6 +80,16 @@ let convert inputFileType inputFile dictFile =
             |> resultDoubleMap ConvertSuccess (ConvertFailed << failwith)
     }
 
+let private lastDictFilePath = "last-dict-file"
+
+let loadLastDict () =
+    async {
+        let! contents =
+            File.ReadAllTextAsync lastDictFilePath
+            |> Async.AwaitTask
+
+        return SetDictFile contents
+    }
 
 let loadInputFile () =
     async {
@@ -100,6 +112,10 @@ let loadDictFile () =
         let result = dlg.ShowDialog()
 
         if result.HasValue && result.Value then
+            do!
+                File.WriteAllTextAsync(lastDictFilePath, dlg.FileName)
+                |> Async.AwaitTask
+
             return SetDictFile dlg.FileName
         else
             return SetDictFileCanceled
@@ -249,20 +265,15 @@ let update msg model =
         Cmd.none
 
     | SetStatusMessage text -> { model with StatusMessage = text }, Cmd.none
-
-let intersperse sep ls =
-    List.foldBack
-        (fun x ->
-            function
-            | [] -> [ x ]
-            | xs -> x :: sep :: xs)
-        ls
-        []
+#if DEBUG
+    | LoadLastDictFailed e -> { model with StatusMessage = e.Message }, Cmd.none
+#else
+    | LoadPreviousDictFailed _ -> model, Cmd.none
+#endif
+    | LoadLastDict -> model, Cmd.OfAsync.either loadLastDict () id LoadLastDictFailed
 
 let displayOutFiles model =
     match model.AppState with
-    // | Done (Ok files) -> files |> intersperse "\n" |> List.reduceBack (+)
-    // | _ -> "Jeszcze nie przekonwertowano"
     | Done (Ok files) -> files
     | _ -> []
 
