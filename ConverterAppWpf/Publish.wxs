@@ -1,97 +1,210 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
-  <Product Name='Excel Converter 1.0' Manufacturer='Bartosz Luka' Id='285165E4-8C9F-41E7-A82E-1A0BE332B45A' UpgradeCode='F19FB776-6194-45E9-954F-167BA6256526' Language='1033' Codepage='1252' Version='1.0.0'>
+  <Product Name='Excel Converter 1.0'
+    Manufacturer='Bartosz Luka'
+    Id='285165E4-8C9F-41E7-A82E-1A0BE332B45A'
+    UpgradeCode='F19FB776-6194-45E9-954F-167BA6256526'
+    Language='1033'
+    Codepage='1252'
+    Version='1.0.0'>
 
-    <Package Id='*' Keywords='Installer' Description="Excel Converter Installer" Comments='This is an excel file converter' Manufacturer='Bartosz Luka' InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
-    <Media Id='1' Cabinet='Sample.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
-    <Property Id='DiskPrompt' Value="Acme's Foobar 1.0 Installation [1]" />
+    <Package Id='*'
+      Keywords='Installer'
+      Description="Excel Converter Installer"
+      Comments='This is an excel file converter'
+      Manufacturer='Bartosz Luka'
+      InstallerVersion='100'
+      Languages='1033'
+      Compressed='yes'
+      SummaryCodepage='1252' />
+    <Media Id='1'
+      Cabinet='Sample.cab'
+      EmbedCab='yes'
+      DiskPrompt="CD-ROM #1" />
+    <Property Id='DiskPrompt'
+      Value="Acme's Foobar 1.0 Installation [1]" />
+    <!-- <Product Id="*" UpgradeCode="PUT-GUID-HERE" Version="1.0.0.0" Language="1033" Name="My Application Name" Manufacturer="My Manufacturer Name">
+      <Package InstallerVersion="300" Compressed="yes"/>
+      <Media Id="1" Cabinet="myapplication.cab" EmbedCab="yes" /> -->
 
-    <Directory Id='TARGETDIR' Name='SourceDir'>
-      <Directory Id='ProgramFilesFolder' Name='PFiles'>
 
-        <Directory Id='ExcelConverter' Name='ExcelConverter'>
-          <Directory Id='INSTALLDIR' Name='ExcelConverter'>
+    <Directory Id='TARGETDIR'
+      Name='SourceDir'>
+      <Directory Id='ProgramFilesFolder'
+        Name='PFiles'>
 
-            <Component Id='MainExecutable' Guid='2D5CC059-7C13-4BCC-88DD-22D4D453B3D3'>
-              <File Id='ConverterAppWpf.exe' Name='ConverterAppWpf.exe' Source='ConverterAppWpf.exe' KeyPath='yes'>
-                <Shortcut Id="startmenuConverter" Directory="ProgramMenuDir" Name="Konwerter Excela" WorkingDirectory='INSTALLDIR' Advertise="yes" />
-                <Shortcut Id="desktopConverter" Directory="DesktopFolder" Name="Konwerter Excela" WorkingDirectory='INSTALLDIR' Advertise="yes" />
-              </File>
-            </Component>
+        <Directory Id='ExcelConverter'
+          Name='ExcelConverter'>
+          <Directory Id='INSTALLDIR'
+            Name='ExcelConverter'>
 
-            <Component Id='clrcompression.dll' Guid='5CE88594-F03C-492B-8077-18435B7D91D9'>
-              <File Id='clrcompression.dll' Name='clrcompression.dll' Source='SourceDir\clrcompression.dll' KeyPath='yes'/>
-            </Component>
-            <Component Id='clrjit.dll' Guid='342C7A16-9020-437D-9C94-E3A2B1CA060F'>
-              <File Id='clrjit.dll' Name='clrjit.dll' DiskId='1' Source='clrjit.dll' KeyPath='yes'/>
-            </Component>
-            <Component Id='ConverterApp.pdb' Guid='F98D3F3F-1B04-4505-9759-83D9E12C07E4'>
-              <File Id='ConverterApp.pdb' Name='ConverterApp.pdb' DiskId='1' Source='ConverterApp.pdb' KeyPath='yes'/>
-            </Component>
-            <Component Id='ConverterApp.xml' Guid='3F23AE35-EF5B-49A7-A22E-6E5543641829'>
-              <File Id='ConverterApp.xml' Name='ConverterApp.xml' DiskId='1' Source='ConverterApp.xml' KeyPath='yes'/>
-            </Component>
-            <Component Id='ConverterAppWpf.pdb' Guid='F5C23B00-7023-4D40-99D8-F1A7ADDD2FB4'>
-              <File Id='ConverterAppWpf.pdb' Name='ConverterAppWpf.pdb' DiskId='1' Source='ConverterAppWpf.pdb' KeyPath='yes'/>
-            </Component>
-            <Component Id='coreclr.dll' Guid='BDA2E71B-23E2-4F0B-9CE2-73E03E3B9F5A'>
-              <File Id='coreclr.dll' Name='coreclr.dll' DiskId='1' Source='coreclr.dll' KeyPath='yes'/>
-            </Component>
-            <Component Id='D3DCompiler_47_cor3.dll' Guid='C0D6A09D-2083-40EA-B022-B9B669355510'>
-              <File Id='D3DCompiler_47_cor3.dll' Name='D3DCompiler_47_cor3.dll' DiskId='1' Source='D3DCompiler_47_cor3.dll' KeyPath='yes'/>
-            </Component>
-            <Component Id='ExcelConverter.pdb' Guid='66AFD5C1-99CC-4446-8623-A868648DFF4E'>
-              <File Id='ExcelConverter.pdb' Name='ExcelConverter.pdb' DiskId='1' Source='ExcelConverter.pdb' KeyPath='yes'/>
-            </Component>
-            <Component Id='mscordaccore.dll' Guid='7410E862-3A48-4F6B-AB2D-5FA38BB983B6'>
-              <File Id='mscordaccore.dll' Name='mscordaccore.dll' DiskId='1' Source='mscordaccore.dll' KeyPath='yes'/>
-            </Component>
-            <Component Id='PenImc_cor3.dll' Guid='620563F8-3696-4A20-B27C-924DB657757C'>
-              <File Id='PenImc_cor3.dll' Name='PenImc_cor3.dll' DiskId='1' Source='PenImc_cor3.dll' KeyPath='yes'/>
-            </Component>
-            <Component Id='PresentationNative_cor3.dll' Guid='DD51D420-A156-43A5-BB0A-463A834FA59F'>
-              <File Id='PresentationNative_cor3.dll' Name='PresentationNative_cor3.dll' DiskId='1' Source='PresentationNative_cor3.dll' KeyPath='yes'/>
-            </Component>
-            <Component Id='vcruntime140_cor3.dll' Guid='85BC17E1-B671-4D86-897D-A25E77D41E38'>
-              <File Id='vcruntime140_cor3.dll' Name='vcruntime140_cor3.dll' DiskId='1' Source='vcruntime140_cor3.dll' KeyPath='yes'/>
-            </Component>
-            <Component Id='wpfgfx_cor3.dll' Guid='A8CF6817-F545-49D9-9A94-4012B308893D'>
-              <File Id='wpfgfx_cor3.dll' Name='wpfgfx_cor3.dll' DiskId='1' Source='wpfgfx_cor3.dll' KeyPath='yes'/>
-            </Component>
-
-          </Directory>
-        </Directory>
-      </Directory>
-
-      <Directory Id="ProgramMenuFolder" Name="Programs">
-        <Directory Id="ProgramMenuDir" Name="ExcelConverter">
-          <Component Id="ProgramMenuDir" Guid="5C035E3E-1A3F-45CE-BCD9-7655F89475BE">
-            <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
-            <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
+            <Component Id='MainExecutable'
+              Guid='2D5CC059-7C13-4BCC-88DD-22D4D453B3D3'>
+              <File Id='ConverterAppWpf.exe'
+                Name='ConverterAppWpf.exe'
+                Source='ConverterAppWpf.exe'
+                KeyPath='yes'
+                Checksum='yes' />
+              <Shortcut Id="startmenuConverter"
+                Directory="ProgramMenuDir"
+                Name="Konwerter Excela"
+                WorkingDirectory='INSTALLDIR'
+                Advertise="yes" />
+              <Shortcut Id="desktopConverter"
+                Directory="DesktopFolder"
+                Name="Konwerter Excela"
+                WorkingDirectory='INSTALLDIR'
+                Advertise="yes" />
+            </File>
           </Component>
+
+          <Component Id='clrcompression.dll'
+            Guid='5CE88594-F03C-492B-8077-18435B7D91D9'>
+            <File Id='clrcompression.dll'
+              Name='clrcompression.dll'
+              Source='SourceDir\clrcompression.dll'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='clrjit.dll'
+            Guid='342C7A16-9020-437D-9C94-E3A2B1CA060F'>
+            <File Id='clrjit.dll'
+              Name='clrjit.dll'
+              DiskId='1'
+              Source='clrjit.dll'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='ConverterApp.pdb'
+            Guid='F98D3F3F-1B04-4505-9759-83D9E12C07E4'>
+            <File Id='ConverterApp.pdb'
+              Name='ConverterApp.pdb'
+              DiskId='1'
+              Source='ConverterApp.pdb'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='ConverterApp.xml'
+            Guid='3F23AE35-EF5B-49A7-A22E-6E5543641829'>
+            <File Id='ConverterApp.xml'
+              Name='ConverterApp.xml'
+              DiskId='1'
+              Source='ConverterApp.xml'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='ConverterAppWpf.pdb'
+            Guid='F5C23B00-7023-4D40-99D8-F1A7ADDD2FB4'>
+            <File Id='ConverterAppWpf.pdb'
+              Name='ConverterAppWpf.pdb'
+              DiskId='1'
+              Source='ConverterAppWpf.pdb'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='coreclr.dll'
+            Guid='BDA2E71B-23E2-4F0B-9CE2-73E03E3B9F5A'>
+            <File Id='coreclr.dll'
+              Name='coreclr.dll'
+              DiskId='1'
+              Source='coreclr.dll'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='D3DCompiler_47_cor3.dll'
+            Guid='C0D6A09D-2083-40EA-B022-B9B669355510'>
+            <File Id='D3DCompiler_47_cor3.dll'
+              Name='D3DCompiler_47_cor3.dll'
+              DiskId='1'
+              Source='D3DCompiler_47_cor3.dll'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='ExcelConverter.pdb'
+            Guid='66AFD5C1-99CC-4446-8623-A868648DFF4E'>
+            <File Id='ExcelConverter.pdb'
+              Name='ExcelConverter.pdb'
+              DiskId='1'
+              Source='ExcelConverter.pdb'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='mscordaccore.dll'
+            Guid='7410E862-3A48-4F6B-AB2D-5FA38BB983B6'>
+            <File Id='mscordaccore.dll'
+              Name='mscordaccore.dll'
+              DiskId='1'
+              Source='mscordaccore.dll'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='PenImc_cor3.dll'
+            Guid='620563F8-3696-4A20-B27C-924DB657757C'>
+            <File Id='PenImc_cor3.dll'
+              Name='PenImc_cor3.dll'
+              DiskId='1'
+              Source='PenImc_cor3.dll'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='PresentationNative_cor3.dll'
+            Guid='DD51D420-A156-43A5-BB0A-463A834FA59F'>
+            <File Id='PresentationNative_cor3.dll'
+              Name='PresentationNative_cor3.dll'
+              DiskId='1'
+              Source='PresentationNative_cor3.dll'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='vcruntime140_cor3.dll'
+            Guid='85BC17E1-B671-4D86-897D-A25E77D41E38'>
+            <File Id='vcruntime140_cor3.dll'
+              Name='vcruntime140_cor3.dll'
+              DiskId='1'
+              Source='vcruntime140_cor3.dll'
+              KeyPath='yes'/>
+          </Component>
+          <Component Id='wpfgfx_cor3.dll'
+            Guid='A8CF6817-F545-49D9-9A94-4012B308893D'>
+            <File Id='wpfgfx_cor3.dll'
+              Name='wpfgfx_cor3.dll'
+              DiskId='1'
+              Source='wpfgfx_cor3.dll'
+              KeyPath='yes'/>
+          </Component>
+
         </Directory>
       </Directory>
-
-      <Directory Id="DesktopFolder" Name="Desktop" />
     </Directory>
 
-    <Feature Id='Complete' Level='1'>
-      <ComponentRef Id='MainExecutable' />
-      <ComponentRef Id='clrcompression.dll'/>
-      <ComponentRef Id='clrjit.dll'/>
-      <ComponentRef Id='ConverterApp.pdb'/>
-      <ComponentRef Id='ConverterApp.xml'/>
-      <ComponentRef Id='ConverterAppWpf.pdb'/>
-      <ComponentRef Id='coreclr.dll'/>
-      <ComponentRef Id='D3DCompiler_47_cor3.dll'/>
-      <ComponentRef Id='ExcelConverter.pdb'/>
-      <ComponentRef Id='mscordaccore.dll'/>
-      <ComponentRef Id='PenImc_cor3.dll'/>
-      <ComponentRef Id='PresentationNative_cor3.dll'/>
-      <ComponentRef Id='vcruntime140_cor3.dll'/>
-      <ComponentRef Id='wpfgfx_cor3.dll'/>
-      <ComponentRef Id='ProgramMenuDir' />
-    </Feature>
+    <Directory Id="ProgramMenuFolder"
+      Name="Programs">
+      <Directory Id="ProgramMenuDir"
+        Name="ExcelConverter">
+        <Component Id="ProgramMenuDir"
+          Guid="5C035E3E-1A3F-45CE-BCD9-7655F89475BE">
+          <RemoveFolder Id='ProgramMenuDir'
+            On='uninstall' />
+          <RegistryValue Root='HKCU'
+            Key='Software\[Manufacturer]\[ProductName]'
+            Type='string'
+            Value=''
+            KeyPath='yes' />
+        </Component>
+      </Directory>
+    </Directory>
 
-  </Product>
+    <Directory Id="DesktopFolder"
+      Name="Desktop" />
+  </Directory>
+
+  <Feature Id='Complete'
+    Level='1'>
+    <ComponentRef Id='MainExecutable' />
+    <ComponentRef Id='clrcompression.dll'/>
+    <ComponentRef Id='clrjit.dll'/>
+    <ComponentRef Id='ConverterApp.pdb'/>
+    <ComponentRef Id='ConverterApp.xml'/>
+    <ComponentRef Id='ConverterAppWpf.pdb'/>
+    <ComponentRef Id='coreclr.dll'/>
+    <ComponentRef Id='D3DCompiler_47_cor3.dll'/>
+    <ComponentRef Id='ExcelConverter.pdb'/>
+    <ComponentRef Id='mscordaccore.dll'/>
+    <ComponentRef Id='PenImc_cor3.dll'/>
+    <ComponentRef Id='PresentationNative_cor3.dll'/>
+    <ComponentRef Id='vcruntime140_cor3.dll'/>
+    <ComponentRef Id='wpfgfx_cor3.dll'/>
+    <ComponentRef Id='ProgramMenuDir' />
+  </Feature>
+
+</Product>
 </Wix>
