@@ -67,15 +67,13 @@ let resultDoubleMap ifOk ifError =
     | Ok files -> files |> ifOk
     | Error errors -> errors |> ifError
 
-let unPair f (x, y) = f x y
-
 let unTriple f (x, y, z) = f x y z
 
 let convert inputFileType inputFile dictFile =
     async {
         let convertingFunction =
             match inputFileType with
-            | Basic _ -> ExcelConverter.convert
+            | Basic -> ExcelConverter.convert
             | Kakadu -> ExcelConverter.convertKakadu
 
         return
@@ -83,7 +81,8 @@ let convert inputFileType inputFile dictFile =
             |> resultDoubleMap ConvertSuccess (ConvertFailed << failwith)
     }
 
-let private lastDictFilePath = "last-dict-file"
+let private lastDictFilePath =
+    sprintf "%s\\%s" (System.Environment.GetEnvironmentVariable "HOMEPATH") ".last-dict-file"
 
 let loadLastDict () =
     async {
@@ -271,7 +270,7 @@ let update msg model =
 #if DEBUG
     | LoadLastDictFailed e -> { model with StatusMessage = e.Message }, Cmd.none
 #else
-    | LoadPreviousDictFailed _ -> model, Cmd.none
+    | LoadLastDictFailed _ -> model, Cmd.none
 #endif
     | LoadLastDict -> model, Cmd.OfAsync.either loadLastDict () id LoadLastDictFailed
 
