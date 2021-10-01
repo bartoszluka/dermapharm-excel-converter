@@ -300,7 +300,9 @@ let radioButtonState state fallback model =
     | _ -> fallback
 
 let bindings () : Binding<Model, Msg> list =
-    [ "StatusMessage"
+    [ "Title"
+      |> Binding.oneWay (fun _ -> "Konwerter Excela dla Dermapharm")
+      "StatusMessage"
       |> Binding.oneWay (fun m -> m.StatusMessage)
       "OutputFiles" |> Binding.oneWay displayOutFiles
       "Convert" |> Binding.cmd RequestConvert
