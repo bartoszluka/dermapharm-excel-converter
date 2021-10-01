@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Windows;
 using Squirrel;
 
@@ -24,14 +23,16 @@ namespace ConverterAppWpf
 
         private static async void Update()
         {
-            using var manager = UpdateManager.GitHubUpdateManager("https://github.com/bartoszluka/dermapharm-excel-converter");
+            using var manager = await UpdateManager.GitHubUpdateManager("https://github.com/bartoszluka/dermapharm-excel-converter");
 
-            await manager.Result.UpdateApp();
+            // await manager.CreateUninstallerRegistryEntry();
+            // manager.CreateShortcutForThisExe(ShortcutLocation.StartMenu | ShortcutLocation.Desktop);
+            await manager.UpdateApp();
         }
 
         private static void OnInstall(Version obj)
         {
-            using var manager = new UpdateManager("https://the.place/you-host/updates");
+            using var manager = new UpdateManager("");
             // using var manager = UpdateManager.GitHubUpdateManager("https://github.com/bartoszluka/dermapharm-excel-converter");
             manager.CreateUninstallerRegistryEntry();
             manager.CreateShortcutForThisExe(ShortcutLocation.StartMenu | ShortcutLocation.Desktop);
@@ -39,11 +40,12 @@ namespace ConverterAppWpf
 
         private void OnFirstRun()
         {
-            throw new NotImplementedException();
+            // var result = MessageBox.Show("Witaj!");
         }
 
         private void OnUninstall(Version obj)
         {
+
             // throw new NotImplementedException();
         }
 

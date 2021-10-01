@@ -3,22 +3,36 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:local="clr-namespace:ConverterAppWpf" mc:Ignorable="d" Title="MainWindow" Height="450" Width="800">
+    Title="Konwerter Excela"
+    xmlns:local="clr-namespace:ConverterAppWpf"
+    mc:Ignorable="d"
+    Height="450"
+    Width="800">
     <StackPanel>
-        <TextBlock Text="{Binding StatusMessage}" FontSize="20" TextAlignment="Center" />
+        <TextBlock Text="{Binding StatusMessage}"
+            FontSize="20"
+            TextAlignment="Center" />
         <StackPanel Orientation="Horizontal">
-            <Button Command="{Binding SelectInputFile}" Content="Wybierz dokument Excel"/>
+            <Button Command="{Binding SelectInputFile}"
+                Content="Wybierz dokument Excel" />
             <StackPanel>
-                <RadioButton Command="{Binding ChangeInputToBasic}" IsChecked="{Binding IsBasic, Mode=OneWay}" Content="Użyj jako zwykłego pliku"/>
-                <RadioButton Command="{Binding ChangeInputToKakadu}" IsChecked="{Binding IsKakadu, Mode=OneWay}" Content="Użyj jako pliku do Kakadu"/>
+                <RadioButton Command="{Binding ChangeInputToBasic}"
+                    IsChecked="{Binding IsBasic, Mode=OneWay}"
+                    Content="Użyj jako zwykłego pliku" />
+                <RadioButton Command="{Binding ChangeInputToKakadu}"
+                    IsChecked="{Binding IsKakadu, Mode=OneWay}"
+                    Content="Użyj jako pliku do Kakadu" />
             </StackPanel>
-            <TextBlock Text="{Binding InputFile}"/>
+            <TextBlock Text="{Binding InputFile}" />
         </StackPanel>
         <StackPanel Orientation="Horizontal">
-            <Button Command="{Binding SelectDictFile}" Content="Wybierz słownik"/>
-            <TextBlock Text="{Binding DictFile}"/>
+            <Button Command="{Binding SelectDictFile}"
+                Content="Wybierz słownik" />
+            <TextBlock Text="{Binding DictFile}" />
         </StackPanel>
-        <Button Command="{Binding Convert}" IsEnabled="{Binding IsButtonEnabled}" Content="{Binding ConvertButtonText}"/>
-        <ListView ItemsSource="{Binding OutputFiles}"/>
+        <Button Command="{Binding Convert}"
+            IsEnabled="{Binding IsButtonEnabled}"
+            Content="{Binding ConvertButtonText}" />
+        <ListView ItemsSource="{Binding OutputFiles}" />
     </StackPanel>
 </Window>
