@@ -23,11 +23,8 @@ namespace ConverterAppWpf
 
         private static async void Update()
         {
-            using var manager = await UpdateManager.GitHubUpdateManager("https://github.com/bartoszluka/dermapharm-excel-converter");
-
-            // await manager.CreateUninstallerRegistryEntry();
-            // manager.CreateShortcutForThisExe(ShortcutLocation.StartMenu | ShortcutLocation.Desktop);
-            await manager.UpdateApp();
+            using var mgr = UpdateManager.GitHubUpdateManager("https://github.com/bartoszluka/dermapharm-excel-converter");
+            await mgr.Result.UpdateApp();
         }
 
         private static void OnInstall(Version obj)
