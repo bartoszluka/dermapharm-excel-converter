@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConverterAppWpf", "Converte
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "ExcelConverter", "ExcelConverter\ExcelConverter.fsproj", "{AF5627D8-319E-4282-9A81-95D1A7C6ABDC}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Tests", "Tests\Tests.fsproj", "{8689A472-671F-4EBD-94AE-A95DEF487409}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{AF5627D8-319E-4282-9A81-95D1A7C6ABDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF5627D8-319E-4282-9A81-95D1A7C6ABDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF5627D8-319E-4282-9A81-95D1A7C6ABDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8689A472-671F-4EBD-94AE-A95DEF487409}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8689A472-671F-4EBD-94AE-A95DEF487409}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8689A472-671F-4EBD-94AE-A95DEF487409}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8689A472-671F-4EBD-94AE-A95DEF487409}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

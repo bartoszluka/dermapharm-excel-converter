@@ -12,43 +12,6 @@ namespace ConverterAppWpf
         public App()
         {
             Activated += StartElmish;
-            SquirrelAwareApp.HandleEvents(
-                onInitialInstall: OnInstall,
-                onAppUpdate: OnUpdate,
-                onAppUninstall: OnUninstall,
-                onFirstRun: OnFirstRun);
-
-            Update();
-        }
-
-        private static async void Update()
-        {
-            using var mgr = UpdateManager.GitHubUpdateManager("https://github.com/bartoszluka/dermapharm-excel-converter");
-            await mgr.Result.UpdateApp();
-        }
-
-        private static void OnInstall(Version obj)
-        {
-            using var manager = new UpdateManager("");
-            // using var manager = UpdateManager.GitHubUpdateManager("https://github.com/bartoszluka/dermapharm-excel-converter");
-            manager.CreateUninstallerRegistryEntry();
-            manager.CreateShortcutForThisExe(ShortcutLocation.StartMenu | ShortcutLocation.Desktop);
-        }
-
-        private void OnFirstRun()
-        {
-            // var result = MessageBox.Show("Witaj!");
-        }
-
-        private void OnUninstall(Version obj)
-        {
-
-            // throw new NotImplementedException();
-        }
-
-        private void OnUpdate(Version obj)
-        {
-            // throw new NotImplementedException();
         }
 
         private void StartElmish(object sender, EventArgs e)

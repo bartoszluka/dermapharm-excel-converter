@@ -3,6 +3,7 @@
 open Elmish.WPF
 open Elmish
 open System.IO
+open Squirrel
 
 type ErrorString = string
 type OutFiles = string list
@@ -13,13 +14,9 @@ type InputFileType =
 
 type MaybeFiles =
     { MaybeInputFile: string option
-      MaybeDictFile: string option
-      InputFileType: InputFileType }
+      MaybeDictFile: string option }
 
-type Files =
-    { InputFile: string
-      DictFile: string
-      InputFileType: InputFileType }
+type Files = { InputFile: string; DictFile: string }
 
 type State =
     | GatheringData of MaybeFiles
@@ -27,9 +24,15 @@ type State =
     | Converting
     | Done of Result<OutFiles, ErrorString>
 
+type Inputs =
+    | Files of Files
+    | MaybeFiles of MaybeFiles
+
 type Model =
-    { AppState: State
-      StatusMessage: string }
+    { StatusMessage: string
+      Files: Inputs
+      InputFileType: InputFileType
+      Results: string list }
 
 
 type Msg =
@@ -41,6 +44,7 @@ type Msg =
     | SetInputFileCanceled
     | SetDictFileCanceled
     // internal
+    | SquirrelUpdate
     | SetInputFile of string
     | SetDictFile of string
     | SetStatusMessage of string
@@ -51,13 +55,15 @@ type Msg =
     | SetInputFileFailed of exn
     | SetDictFileFailed of exn
     | LoadLastDictFailed of exn
+    | SquirrelUpdateFailed of exn
 
 let init () =
-    { AppState =
-          GatheringData
+    { Files =
+          MaybeFiles
               { MaybeInputFile = None
-                MaybeDictFile = None
-                InputFileType = Basic }
+                MaybeDictFile = None }
+      InputFileType = Basic
+      Results = []
       StatusMessage = "Wybierz pliki do konwersji" },
     Cmd.ofMsg LoadLastDict
 
@@ -83,6 +89,27 @@ let convert inputFileType inputFile dictFile =
 
 let private lastDictFilePath =
     sprintf "%s\\%s" (System.Environment.GetEnvironmentVariable "HOMEPATH") ".last-dict-file"
+
+let squirrelUpdate () =
+    async {
+        let m: UpdateManager =
+            UpdateManager.GitHubUpdateManager("https://github.com/bartoszluka/dermapharm-excel-converter")
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+
+        let! _ = m.UpdateApp() |> Async.AwaitTask
+
+        let! _ =
+            m.CreateUninstallerRegistryEntry()
+            |> Async.AwaitTask
+
+        m.CreateShortcutForThisExe(
+            ShortcutLocation.Desktop
+            ||| ShortcutLocation.StartMenu
+        )
+
+        return SetStatusMessage "updated"
+    }
 
 let loadLastDict () =
     async {
@@ -124,91 +151,63 @@ let loadDictFile () =
     }
 
 let convertToGotData model =
-    match model.AppState with
-    | GatheringData { MaybeInputFile = Some input
-                      MaybeDictFile = Some dict
-                      InputFileType = inputFileType } ->
+    match model.Files with
+    | MaybeFiles { MaybeInputFile = Some i
+                   MaybeDictFile = Some d } ->
         { model with
-              AppState =
-                  GotAllData
-                      { InputFile = input
-                        DictFile = dict
-                        InputFileType = inputFileType } }
+              Files = Files { InputFile = i; DictFile = d } }
     | _ -> model
-
 
 let updateGatheringDataDict model dictFile =
-    match model.AppState with
-    | GatheringData maybeFiles ->
+    match model.Files with
+    | MaybeFiles maybeFiles ->
         { model with
               StatusMessage = "Wybierz plik Excel"
-              AppState =
-                  GatheringData
+              Files =
+                  MaybeFiles
                       { maybeFiles with
                             MaybeDictFile = Some dictFile } }
-    | Done _ ->
+    | Files files ->
         { model with
-              StatusMessage = "Wybierz plik Excel"
-              AppState =
-                  GatheringData
-                      { MaybeInputFile = None
-                        MaybeDictFile = Some dictFile
-                        InputFileType = Basic } }
-    | _ -> model
+              StatusMessage = "Zaktualizowano słownik"
+              Files = Files { files with DictFile = dictFile } }
 
 let updateGatheringDataInput model inputFile =
-    match model.AppState with
-    | GatheringData maybeFiles ->
+    match model.Files with
+    | MaybeFiles maybeFiles ->
         { model with
               StatusMessage = "Wybierz słownik"
-              AppState =
-                  GatheringData
+              Files =
+                  MaybeFiles
                       { maybeFiles with
                             MaybeInputFile = Some inputFile } }
-    | Done _ ->
+    | Files files ->
         { model with
-              StatusMessage = "Wybierz słownik"
-              AppState =
-                  GatheringData
-                      { MaybeInputFile = Some inputFile
-                        MaybeDictFile = None
-                        InputFileType = Basic } }
-    | _ -> model
+              StatusMessage = "Zaktualizowano plik Excel"
+              Files = Files { files with InputFile = inputFile } }
 
 let none model = model, Cmd.none
 
 let updateInputFileType model inputFileType =
-    match model.AppState with
-    | GatheringData maybeFiles ->
-        { model with
-              AppState =
-                  GatheringData
-                  <| { maybeFiles with
-                           InputFileType = inputFileType } }
-    | GotAllData files ->
-        { model with
-              AppState =
-                  GotAllData
-                  <| { files with
-                           InputFileType = inputFileType } }
-
-    | _ -> model
+    { model with
+          InputFileType = inputFileType }
 
 let update msg model =
     match msg with
     | RequestConvert ->
-        match model.AppState with
-        | GotAllData files ->
+        match model.Files with
+        | Files files ->
             { model with
-                  StatusMessage = "Konwertowanie..."
-                  AppState = Converting },
+                  StatusMessage = "Konwertowanie..." },
             Cmd.OfAsync.either
                 (unTriple convert)
-                (files.InputFileType, files.InputFile, files.DictFile)
+                (model.InputFileType, files.InputFile, files.DictFile)
                 id
                 ConvertFailed
-        // TODO: give some useful error message
-        | _ -> model, Cmd.none
+        | _ ->
+            { model with
+                  StatusMessage = "Najpierw wybierz plik excelowy i słownik" },
+            Cmd.none
     | RequestSelectInputFile ->
         { model with
               StatusMessage = "Ładowanie pliku excel" },
@@ -217,7 +216,10 @@ let update msg model =
         { model with
               StatusMessage = "Ładowanie słownika" },
         Cmd.OfAsync.either loadDictFile () id SetDictFileFailed
-    | ChangeInputFileType fileType -> updateInputFileType model fileType |> none
+    | ChangeInputFileType inputFileType ->
+        { model with
+              InputFileType = inputFileType }
+        |> none
     | SetInputFileCanceled ->
         { model with
               //tutaj był error
@@ -243,15 +245,16 @@ let update msg model =
     | ConvertSuccess createdFiles ->
         { model with
               StatusMessage = "Udało się przekonwertować"
-              AppState = Done <| Ok createdFiles },
+              Results = createdFiles },
         Cmd.none
 
     | ConvertFailed errorList ->
         { model with
-              //tutaj był error
               StatusMessage =
                   "Nie udało się przekonwertowć. Upewnij się, że pliki nie są otwarte w innym programie (np. w Excelu)"
-              AppState = Done <| Error errorList.Message },
+                  + "\n"
+                  + errorList.Message
+              Results = [] },
         Cmd.none
 
     | SetInputFileFailed (_) ->
@@ -269,42 +272,36 @@ let update msg model =
     | SetStatusMessage text -> { model with StatusMessage = text }, Cmd.none
 #if DEBUG
     | LoadLastDictFailed e -> { model with StatusMessage = e.Message }, Cmd.none
+    | SquirrelUpdateFailed e -> { model with StatusMessage = e.Message }, Cmd.none
 #else
     | LoadLastDictFailed _ -> model, Cmd.none
+    | SquirrelUpdateFailed _ -> model, Cmd.none
 #endif
     | LoadLastDict -> model, Cmd.OfAsync.either loadLastDict () id LoadLastDictFailed
-
-let displayOutFiles model =
-    match model.AppState with
-    | Done (Ok files) -> files
-    | _ -> []
+    | SquirrelUpdate -> model, Cmd.OfAsync.either squirrelUpdate () id SquirrelUpdateFailed
 
 let displayInputFile model =
-    match model.AppState with
-    | GatheringData ({ MaybeInputFile = (Some file) }) -> file
-    | GotAllData ({ InputFile = file }) -> file
-    | Done (Ok _) -> ""
+    match model.Files with
+    | MaybeFiles ({ MaybeInputFile = (Some file) }) -> file
+    | Files ({ InputFile = file }) -> file
     | _ -> "Wybierz plik excel"
 
 let displayDictFile model =
-    match model.AppState with
-    | GatheringData ({ MaybeDictFile = (Some file) }) -> file
-    | GotAllData ({ DictFile = file }) -> file
-    | Done (Ok _) -> ""
+    match model.Files with
+    | MaybeFiles ({ MaybeDictFile = (Some file) }) -> file
+    | Files ({ DictFile = file }) -> file
     | _ -> "Wybierz słownik"
 
-let radioButtonState state fallback model =
-    match model.AppState with
-    | GatheringData maybeFiles -> maybeFiles.InputFileType = state
-    | GotAllData files -> files.InputFileType = state
-    | _ -> fallback
+let radioButtonState state model = model.InputFileType = state
 
 let bindings () : Binding<Model, Msg> list =
     [ "Title"
       |> Binding.oneWay (fun _ -> "Konwerter Excela dla Dermapharm")
+      "Update" |> Binding.cmd SquirrelUpdate
       "StatusMessage"
       |> Binding.oneWay (fun m -> m.StatusMessage)
-      "OutputFiles" |> Binding.oneWay displayOutFiles
+      "OutputFiles"
+      |> Binding.oneWay (fun m -> m.Results)
       "Convert" |> Binding.cmd RequestConvert
       "InputFile" |> Binding.oneWay displayInputFile
       "DictFile" |> Binding.oneWay displayDictFile
@@ -315,15 +312,15 @@ let bindings () : Binding<Model, Msg> list =
       "ChangeInputToKakadu"
       |> Binding.cmd (ChangeInputFileType Kakadu)
       "IsBasic"
-      |> Binding.oneWay (radioButtonState Basic true)
+      |> Binding.oneWay (radioButtonState Basic)
       "IsKakadu"
-      |> Binding.oneWay (radioButtonState Kakadu false)
+      |> Binding.oneWay (radioButtonState Kakadu)
       "IsButtonEnabled"
-      |> Binding.oneWay
-          (fun m ->
-              match m.AppState with
-              | GotAllData _ -> true
-              | _ -> false)
+      |> Binding.oneWay (fun _ -> true)
+      //   (fun m ->
+      //       match m.Files with
+      //       | Files _ -> true
+      //       | MaybeFiles _ -> false)
       "ConvertButtonText"
       |> Binding.oneWay (fun _ -> "Konwertuj")
       "SelectDictFile"

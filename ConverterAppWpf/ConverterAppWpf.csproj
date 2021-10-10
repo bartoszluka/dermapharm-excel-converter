@@ -10,7 +10,4 @@
   <ItemGroup>
     <ProjectReference Include="..\ConverterApp\ConverterApp.fsproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Clowd.Squirrel" Version="2.2.5-pre" />
-  </ItemGroup>
 </Project>

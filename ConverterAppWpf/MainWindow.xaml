@@ -8,7 +8,11 @@
     mc:Ignorable="d"
     Height="450"
     Width="800">
+
     <StackPanel>
+        <Menu>
+            <MenuItem Header="Zaktualizuj" Command="{Binding Update}"/>
+        </Menu>
         <TextBlock Text="{Binding StatusMessage}"
             FontSize="20"
             TextAlignment="Center" />
